@@ -4,117 +4,58 @@
 #include <string.h>
 
 bool exist(char **board, int boardSize, int boardColSize, char *word);
-bool checkLeftRight(char **board, int *i, int *j, int boardColSize, char targetChar);
-bool checkUpDown(char **board, int *i, int *j, int boardSize, char targetChar);
+bool dfs(char **board, int numberOfArrays, int numberOfElements, int i, int j, char *target, int targetIndex );
 
-int main()
-{
-    char boardTest[3][4] = {
-        {'A', 'B', 'C', 'E'},
-        {'S', 'F', 'C', 'S'},
-        {'A', 'D', 'E', 'E'}};
-    int boardSizeTest = 3;
-    int boardColSize = 4;
-    char wordTest[] = "ABCCE";
-
-    char **board = malloc(boardSizeTest * sizeof(char *));
-    for (int i = 0; i < boardSizeTest; i++)
-    {
-        board[i] = malloc(boardColSize * sizeof(char));
-        for (int j = 0; j < boardColSize; j++)
-        {
-            board[i][j] = boardTest[i][j];
-        }
-    }
-
-    bool results = exist(board, boardSizeTest, boardColSize, wordTest);
-    printf("%i", results);
-}
 
 bool exist(char **board, int boardSize, int boardColSize, char *word)
 {
-    char currentChar;
-    int matchedChars = 0;
-
+    // this loop passes through each array in the board
     for (int i = 0; i < boardSize; i++)
     {
-        if (matchedChars == strlen(word))
-        {
-            break;
-        }
+        // this second loop passes through the each character in each array
         for (int j = 0; j < boardColSize; j++)
         {
-            if (matchedChars == strlen(word))
+            // we want to run our function against each character
+            // were looking for the first character in word index[0]
+            if (dfs(board, boardSize, boardColSize, i, j , word, 0))
             {
-                break;
-            }
-            currentChar = board[i][j];
-            printf("%c", word[0]);
-
-            if (currentChar == word[0])
-            {
-                matchedChars++;
-            }
-
-            while (matchedChars != strlen(word))
-            {
-                int new_i = i, new_j = j;
-                if (checkLeftRight(board, &new_i, &new_j, boardColSize, word[matchedChars]) ||
-                    checkUpDown(board, &new_i, &new_j, boardSize, word[matchedChars]))
-                {
-                    matchedChars++;
-                    i = new_i;
-                    j = new_j;
-                    currentChar = board[i][j];
-                }
-                else
-                {
-                    break;
-                }
+                return true;
             }
         }
-    }
-    if (matchedChars == strlen(word))
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
-bool checkLeftRight(char **board, int *i, int *j, int boardColSize, char targetChar)
-{
-    // checks to the left
-    if (*j > 0 && board[*i][*j-1] == targetChar)
-    {
-        (*j)--;
-        return true;
-    }
-
-    // checks to the right
-    if (*j < boardColSize - 1 && board[*i][*j + 1] == targetChar)
-    {
-        (*j)++;
-        return true;
     }
     return false;
 }
 
-bool checkUpDown(char **board, int *i, int *j, int boardSize, char targetChar)
+bool dfs(char **board, int numberOfArrays, int numberOfElements, int i, int j, char *target, int targetIndex )
 {
-    // checks up
-    if (*i > boardSize && board[*i - 1][*j] == targetChar)
+    if (targetIndex == strlen(target))
     {
-        (*i)--;
-    }
-
-    // checks down
-    if (*i < boardSize -1 && board[*i + 1][*j] == targetChar)
-    {
-        (*i)++;
         return true;
     }
+
+    // if the number of arrays is less than zero
+    // OR I == numberOfArrays ||
+    // OR J - number of elements in an array is less than 0 ||
+    // OR j is == equal to the numberOfElements in each array ||
+    // OR # MOST IMPORTANTLY #
+    // OR if the board's position at [i] and [j] != the target at the TargetIndex
+    if (i < 0 || i == numberOfArrays || j < 0 || j == numberOfElements || board[i][j] != target[targetIndex]){
+        return false;
+    }
+
+    char temp = board[i][j];
+    board[i][j] = '*'; //
+
+    int rowChecks[] = {-1, 1, 0, 0};
+    int columnChecks[] = {0, 0, -1, 1};
+
+    for (int c = 0; c < 4; c++)
+    {
+        if (dfs(board, numberOfArrays, numberOfElements, i + rowChecks[c], j + columnChecks[c], target, target[targetIndex + 1]))
+        {
+            return true;
+        }
+    }
+    board[i][j] = temp;
     return false;
 }
