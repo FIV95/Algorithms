@@ -106,7 +106,7 @@ int *toArray(LinkedList *list, int *size)
     return arr;
 }
 
-void changeHead(LinkedList* list, Node* node)
+void changeHead(LinkedList *list, Node *node)
 {
     if (isEmpty(list))
     {
@@ -133,6 +133,22 @@ void printArray(int *arr, int size)
     printf("]\n");
 }
 
+LinkedList *fromArrayToList(int *arr, int arrSize)
+{
+    if (arrSize == 0)
+    {
+        return NULL;
+    }
+    // first need to make new list struct
+    LinkedList *newList = malloc(sizeof(LinkedList));
+    // set index 0 to head
+    for (int i = 0; i < arrSize - 1; i++)
+    {
+        addToList(newList, arr[i]);
+    }
+    return newList;
+}
+
 int main()
 {
     LinkedList *listA = createList();
@@ -146,5 +162,8 @@ int main()
     printf("%d\n", listA->head->next->data);
     printArray(arr, size);
     free(arr);
+    int test[10] = {1,2,3,4,5,6,7,8,9,10};
+    LinkedList *listB = fromArrayToList(&test, 10);
+    printf("%d\n", listB->head->next->data);
     return 0;
 }
