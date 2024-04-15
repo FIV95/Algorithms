@@ -133,6 +133,30 @@ void printArray(int *arr, int size)
     printf("]\n");
 }
 
+void deleteValue(LinkedList* list, int valueToBeDeleted) {
+    Node* runner = malloc(sizeof(Node*));
+    runner = list->head;
+
+    if (runner->data == valueToBeDeleted)
+    {
+        list->head = list->head->next;
+        return;
+    }
+    // 0-0-0-0
+
+    while (runner) {
+        if (runner->next->data == valueToBeDeleted) {
+            runner->next = runner->next->next;
+            runner = runner->next;
+            return;
+        }
+        runner = runner->next;
+
+        }
+        printf("Requested Value not found!\n");
+        return;
+    }
+
 LinkedList *fromArrayToList(int *arr, int arrSize)
 {
     if (arrSize == 0)
@@ -164,6 +188,8 @@ int main()
     free(arr);
     int test[10] = {1,2,3,4,5,6,7,8,9,10};
     LinkedList *listB = fromArrayToList(&test, 10);
-    printf("%d\n", listB->head->next->data);
+    deleteValue(listB, 9);
+    int *testArr = toArray(listB, &size);
+    printArray(testArr, size);
     return 0;
 }
