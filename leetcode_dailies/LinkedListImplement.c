@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+// STRUCTS
 typedef struct Node
 {
     int data;
@@ -12,6 +13,18 @@ typedef struct
 {
     Node *head;
 } LinkedList;
+
+// FUNCTIONS
+Node *createNode(int data);
+LinkedList *createList();
+bool isEmpty(LinkedList *list);
+void addToListAtFront(LinkedList *list, int value);
+void addToListAtBack(LinkedList *list, int value);
+void deleteValue(LinkedList *list, int valueToBeDeleted);
+bool containsValue(LinkedList *list, int value);
+int *toArray(LinkedList *list, int *size);
+void printArray(int *arr, int size);
+LinkedList *fromArrayToList(int *arr, int arrSize);
 
 Node *createNode(int data)
 {
@@ -43,19 +56,25 @@ bool isEmpty(LinkedList *list)
     return list->head == NULL;
 }
 
-void setHead(LinkedList *list, Node *node)
+void addToListAtFront(LinkedList *list, int value)
 {
-    if (isEmpty(list))
+    Node *newNode = createNode(value);
+    if (newNode == NULL)
     {
-        list->head = node;
+        printf("Memory Allocation Failed creating Node in addtoListAtFront function\n");
         return;
     }
-    node->next = list->head;
-    list->head = node;
+    if (isEmpty(list))
+    {
+        list->head = newNode;
+        return;
+    }
+    newNode->next = list->head;
+    list->head = newNode;
     return;
 }
 
-void addToList(LinkedList *list, int value)
+void addToListAtBack(LinkedList *list, int value)
 {
     Node *newNode = createNode(value);
     if (newNode == NULL)
@@ -80,49 +99,30 @@ void addToList(LinkedList *list, int value)
 int *toArray(LinkedList *list, int *size)
 {
     Node *runner = list->head;
+    *size = 0;
     if (isEmpty(list))
     {
         return NULL;
-    }
-    else
-    {
-        (*size) = 1;
     }
     while (runner)
     {
         runner = runner->next;
         (*size)++;
     }
-    int i = 0;
     int *arr = malloc(sizeof(int) * (*size));
     runner = list->head;
-    while (runner)
+    for (int i = 0; i < *size; i++)
     {
         arr[i] = runner->data;
-        printf("%d\n", runner->data);
         runner = runner->next;
-        i++;
     }
     return arr;
-}
-
-void changeHead(LinkedList *list, Node *node)
-{
-    if (isEmpty(list))
-    {
-        list->head = node;
-        return;
-    }
-    // we simply wanna shift the nodes to the right.
-    node->next = list->head;
-    list->head = node;
-    return;
 }
 
 void printArray(int *arr, int size)
 {
     printf("[");
-    for (int i = 0; i < size - 1; i++)
+    for (int i = 0; i < size; i++)
     {
         if (i > 0)
         {
@@ -133,29 +133,33 @@ void printArray(int *arr, int size)
     printf("]\n");
 }
 
-void deleteValue(LinkedList* list, int valueToBeDeleted) {
-    Node* runner = malloc(sizeof(Node*));
+void deleteValue(LinkedList *list, int valueToBeDeleted)
+{
+    Node *runner = malloc(sizeof(Node *));
     runner = list->head;
 
     if (runner->data == valueToBeDeleted)
     {
         list->head = list->head->next;
+        free(runner);
         return;
     }
     // 0-0-0-0
 
-    while (runner) {
-        if (runner->next->data == valueToBeDeleted) {
+    while (runner->next != NULL)
+    {
+        if (runner->next->data == valueToBeDeleted)
+        {
+            Node *previous = runner->next;
             runner->next = runner->next->next;
-            runner = runner->next;
+            free(previous);
             return;
         }
         runner = runner->next;
-
-        }
-        printf("Requested Value not found!\n");
-        return;
     }
+    printf("Requested Value not found!\n");
+    return;
+}
 
 LinkedList *fromArrayToList(int *arr, int arrSize)
 {
@@ -166,30 +170,49 @@ LinkedList *fromArrayToList(int *arr, int arrSize)
     // first need to make new list struct
     LinkedList *newList = malloc(sizeof(LinkedList));
     // set index 0 to head
-    for (int i = 0; i < arrSize - 1; i++)
+    for (int i = 0; i < arrSize; i++)
     {
-        addToList(newList, arr[i]);
+        addToListAtBack(newList, arr[i]);
     }
     return newList;
+}
+
+bool containsValue(LinkedList *list, int value)
+{
+    Node *runner = malloc(sizeof(Node));
+
+    runner = list->head;
+
+    while (runner)
+    {
+        if (runner->data == value)
+        {
+            return true;
+        }
+        runner = runner->next;
+    }
+    return false;
 }
 
 int main()
 {
     LinkedList *listA = createList();
-    addToList(listA, 3);
-    addToList(listA, 4);
-    addToList(listA, 5);
-    addToList(listA, 6);
-    addToList(listA, 8);
+    addToListAtBack(listA, 3);
+    addToListAtBack(listA, 4);
+    addToListAtBack(listA, 5);
+    addToListAtBack(listA, 6);
+    addToListAtBack(listA, 8);
     int size = 0;
     int *arr = toArray(listA, &size);
-    printf("%d\n", listA->head->next->data);
     printArray(arr, size);
     free(arr);
-    int test[10] = {1,2,3,4,5,6,7,8,9,10};
-    LinkedList *listB = fromArrayToList(&test, 10);
+    int test[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    LinkedList *listB = fromArrayToList(test, 10);
     deleteValue(listB, 9);
+    addToListAtFront(listB, -4);
     int *testArr = toArray(listB, &size);
     printArray(testArr, size);
+    int result = containsValue(listB, -4);
+    printf("%d\n", result);
     return 0;
 }
